@@ -1,0 +1,41 @@
+{
+  "name": "Divvya Jain",
+  "createdAt": "2026-01-09T10:53:06.730573Z",
+  "updatedAt": "2026-01-09T10:53:06.730573Z",
+  "id": 1,
+  "job_description": "software engineer",
+  "resume_highlights": [
+    "Developed a scalable full-stack platform (Turf-Near-You) using React, TypeScript, Supabase, and Tailwind CSS, increasing user engagement by 30% through real-time booking and analytics.",
+    "Built a Cricket Auction App with live bidding functionality using React, Node.js, Express, PostgreSQL, and Socket.io, enabling real-time team bidding and budget management.",
+    "Created a Book Notes App with 10+ RESTful routes and MVC structure, handling 100+ operations on 50+ notes with PostgreSQL for efficient data management.",
+    "Designed a Blog Writing Platform with live markdown editing and auto-save, reducing post loss by 40% during editing and managing 100+ test users securely.",
+    "Secured 8+ sponsorships for college events as a Marketing Executive, collaborating with a 5-member team to negotiate deals with 20+ companies.",
+    "Technical expertise in full-stack development, data science, and cloud databases, with proficiency in languages like Python, JavaScript, and SQL.",
+    "B.Tech in Computer Engineering with Honors in Data Science (CGPA: 8.7/10) and certifications in Python Programming and Full Stack Web Development."
+  ],
+  "conversations": [
+    {
+      "Question": "Hi Divvya Jain, welcome to this AI interview! My name is Alex and I'll be your interviewer today. Let's get started!\n\nCan you give me a quick overview of your background and experience?",
+      "Candidate Answer": "Hello.",
+      "Evaluation": 3,
+      "Feedback": "The response was too brief and lacked depth. While the greeting was professional, it failed to provide any substantive overview of your background or experience. To improve, structure your response with key highlights from your resume, quantify achievements, and align them with the software engineer role. For example, mention your full-stack projects, technical skills, and measurable impacts like user engagement increases. This will demonstrate relevance and completeness.",
+      "Criteria_Scores": {
+        "relevance": 2,
+        "completeness": 1,
+        "structure": 3,
+        "specificity": 1,
+        "impact": 1,
+        "professionalism": 5
+      },
+      "Competency_Assessment": {
+        "technical_skills": 8,
+        "problem_solving": 7,
+        "communication": 3,
+        "leadership": 6,
+        "cultural_fit": 5,
+        "growth_mindset": 7
+      }
+    }
+  ],
+  "overall_score": 3.0
+}
