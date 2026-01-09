@@ -213,45 +213,10 @@ def transcribe_with_speechmatics(audio_file):
 
 ## 🚀 Development & Deployment
 
-### **Docker** (Containerization)
-- **Purpose:** Consistent deployment environment
-- **Components:**
-  - **Dockerfile:** Application containerization
-  - **docker-compose.yml:** Multi-service orchestration
-  - **run_docker.sh:** Automated deployment script
-
-**Docker Configuration:**
-```dockerfile
-# Base image with Python 3.11
-FROM python:3.11-slim
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    portaudio19-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy application files
-COPY . /app
-WORKDIR /app
-
-# Install Python dependencies
-RUN pip install -r requirements.txt
-
-# Expose Streamlit port
-EXPOSE 8501
-
-# Run application
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
-```
-
 ### **Make** (Build Automation)
-- **Purpose:** Automated build and deployment tasks
+- **Purpose:** Helper commands for development
 - **Commands:**
-  - `make build` - Build Docker image
-  - `make run` - Run container
-  - `make rebuild` - Clean rebuild
-  - `make clean` - Clean up containers
+  - `make help` - Show available commands
 
 ### **Virtual Environment**
 - **Tool:** Python venv
@@ -421,7 +386,6 @@ python-dotenv==1.1.0      # Environment management
 ## 📈 Scalability Considerations
 
 ### **Horizontal Scaling**
-- **Docker containers** for easy replication
 - **Load balancing** ready architecture
 - **Stateless design** for scalability
 
@@ -452,7 +416,6 @@ python-dotenv==1.1.0      # Environment management
 | **PDF Processing** | PyPDF | 5.5.0 | Resume parsing |
 | **Data Analysis** | Pandas | 2.2.3 | Data manipulation |
 | **Numerical Computing** | NumPy | 2.2.6 | Mathematical operations |
-| **Containerization** | Docker | Latest | Deployment |
 | **Configuration** | python-dotenv | 1.1.0 | Environment management |
 
 ---
