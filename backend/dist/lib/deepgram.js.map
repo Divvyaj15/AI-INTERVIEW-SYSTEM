@@ -1,0 +1,1 @@
+{"version":3,"file":"deepgram.js","sourceRoot":"","sources":["../../src/lib/deepgram.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,eAAe,CAAA;AAE5C,IAAI,CAAC,OAAO,CAAC,GAAG,CAAC,gBAAgB,EAAE,CAAC;IAClC,MAAM,IAAI,KAAK,CAAC,kCAAkC,CAAC,CAAA;AACrD,CAAC;AAED,MAAM,CAAC,MAAM,QAAQ,GAAG,YAAY,CAAC,OAAO,CAAC,GAAG,CAAC,gBAAgB,CAAC,CAAA"}

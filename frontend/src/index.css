@@ -1,0 +1,234 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #020617;
+    color: #f1f5f9;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-500 text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    @apply text-slate-200 font-medium px-6 py-3 rounded-xl transition-all duration-200 hover:bg-white/10 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-field {
+    @apply w-full bg-dark-800/50 border border-dark-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200;
+  }
+
+  .card {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    @apply rounded-2xl p-6;
+  }
+}
+
+@layer utilities {
+  .animation-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+}
+
+@keyframes wave {
+
+  0%,
+  100% {
+    transform: scaleY(0.4);
+    opacity: 0.6;
+  }
+
+  50% {
+    transform: scaleY(1.6);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes score-reveal {
+  0% {
+    stroke-dashoffset: 440;
+  }
+
+  100% {
+    stroke-dashoffset: var(--score-offset);
+  }
+}
+
+.score-circle {
+  animation: score-reveal 2s ease-out forwards;
+}
+
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Antigravity Styles ──────────────────────────────────────────────────────── */
+
+.nebula {
+  background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 63%),
+    radial-gradient(circle at 18% 28%, rgba(139, 92, 246, 0.1) 0%, transparent 38%),
+    radial-gradient(circle at 78% 68%, rgba(56, 189, 248, 0.1) 0%, transparent 48%);
+  filter: blur(78px);
+}
+
+@keyframes drift {
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate(var(--dx, 20px), var(--dy, -20px)) rotate(var(--dr, 6deg));
+  }
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(var(--radius, 98px)) rotate(0deg);
+  }
+
+  to {
+    transform: rotate(358deg) translateX(var(--radius, 98px)) rotate(-358deg);
+  }
+}
+
+@keyframes rotate-3d {
+  0% {
+    transform: perspective(980px) rotateX(0deg) rotateY(0deg);
+  }
+
+  100% {
+    transform: perspective(980px) rotateX(358deg) rotateY(358deg);
+  }
+}
+
+@keyframes stars-float {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-980px);
+  }
+}
+
+.antigravity-element {
+  will-change: transform;
+}
+
+.perspective-1000 {
+  perspective: 980px;
+}
+
+.gravitational-pull {
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 48%;
+  background: rgba(99, 102, 241, 0.18);
+  transform: scale(0);
+  animation: ripple-effect 0.8s ease-out;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+@keyframes ripple-effect {
+  to {
+    transform: scale(3.8);
+    opacity: 0;
+  }
+}
