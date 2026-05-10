@@ -131,6 +131,14 @@ export interface RAGContext {
     relevantQuestions: QuestionBankEntry[];
     rubric: Rubric | null;
 }
+export interface ResumeExtraction {
+    name: string;
+    email: string | null;
+    currentRole: string;
+    yearsOfExperience: number;
+    topSkills: string[];
+    highlights: string;
+}
 export interface LLMEvaluationResult {
     score: number;
     feedback: string;

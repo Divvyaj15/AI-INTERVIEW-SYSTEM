@@ -24,42 +24,36 @@ const upload = multer({
 // POST /intake
 intakeRouter.post('/', authMiddleware, upload.single('resume'), async (req, res, next) => {
     try {
-        // Validate request
         if (!req.file)
             throw createError('Resume PDF is required', 400);
-        const { jobDescription } = z
-            .object({ jobDescription: z.string().min(50, 'Job description too short') })
+        const { jobDescription, maxQuestions } = z
+            .object({
+            jobDescription: z.string().min(1, 'Job description is required'),
+            maxQuestions: z.string().optional().transform(v => parseInt(v || '5'))
+        })
             .parse(req.body);
         const userId = req.user.id;
         const interviewId = uuid();
         // 1. Parse PDF
         const { text: resumeText } = await extractTextFromPDF(req.file.buffer);
-        // 2. Upload PDF to Supabase Storage
-        const filePath = `${userId}/${interviewId}/resume.pdf`;
-        const { error: uploadError } = await supabase.storage
-            .from('resumes')
-            .upload(filePath, req.file.buffer, { contentType: 'application/pdf' });
-        if (uploadError) {
-            console.warn('[Intake] Storage upload failed (non-fatal):', uploadError.message);
-        }
-        // 3. Extract candidate info via LLM
+        // 2. Extract candidate info via LLM
         const { system, user } = buildExtractResumePrompt(resumeText);
         const extraction = await llmCallJSON(user, system, {
             temperature: 0.2,
             maxTokens: 800,
         });
-        // 4. Create interview record
+        // 3. Create interview record
         const { error: dbError } = await supabase.from('interviews').insert({
             id: interviewId,
             candidate_id: userId,
             job_description: jobDescription,
-            resume_url: filePath,
             resume_highlights: extraction.highlights,
+            max_questions: maxQuestions,
             status: 'pending',
         });
         if (dbError)
             throw createError(`DB insert failed: ${dbError.message}`, 500);
-        // 5. Chunk + embed both documents (non-blocking for faster response)
+        // 4. Chunk + embed both documents
         const resumeChunks = chunkResume(resumeText, userId, interviewId);
         const jdChunks = chunkJD(jobDescription, interviewId);
         Promise.all([
@@ -70,7 +64,7 @@ intakeRouter.post('/', authMiddleware, upload.single('resume'), async (req, res,
             interviewId,
             candidateName: extraction.name,
             resumeHighlights: extraction.highlights,
-            message: 'Interview created. Embeddings are being processed in the background.',
+            message: 'Interview created.',
         };
         res.status(201).json(response);
     }

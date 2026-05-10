@@ -1,14 +1,27 @@
 import { retrieveResumeChunks, retrieveJDChunks, retrieveQuestionBankEntries, retrieveRubric, retrievePriorTurns, } from './retriever.js';
 export async function buildQuestionContext(interviewId, topic) {
-    // Run all retrievals in parallel for speed
-    const [resumeChunks, jdChunks, priorTurns, relevantQuestions, rubric] = await Promise.all([
-        retrieveResumeChunks(topic, interviewId),
-        retrieveJDChunks(topic, interviewId),
-        retrievePriorTurns(topic, interviewId),
-        retrieveQuestionBankEntries(topic),
-        retrieveRubric(topic),
-    ]);
-    return { resumeChunks, jdChunks, priorTurns, relevantQuestions, rubric };
+    const emptyContext = {
+        resumeChunks: [],
+        jdChunks: [],
+        priorTurns: [],
+        relevantQuestions: [],
+        rubric: null,
+    };
+    try {
+        // Run all retrievals in parallel for speed
+        const [resumeChunks, jdChunks, priorTurns, relevantQuestions, rubric] = await Promise.all([
+            retrieveResumeChunks(topic, interviewId).catch(() => []),
+            retrieveJDChunks(topic, interviewId).catch(() => []),
+            retrievePriorTurns(topic, interviewId).catch(() => []),
+            retrieveQuestionBankEntries(topic).catch(() => []),
+            retrieveRubric(topic).catch(() => null),
+        ]);
+        return { resumeChunks, jdChunks, priorTurns, relevantQuestions, rubric };
+    }
+    catch (err) {
+        console.warn('[RAG] Context building failed, proceeding without RAG context:', err.message);
+        return emptyContext;
+    }
 }
 export function formatContextForLLM(context) {
     const sections = [];

@@ -14,8 +14,18 @@ const app = express();
 const PORT = process.env.PORT ?? 4000;
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());
+const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:5173';
 app.use(cors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:5173',
+    origin: (origin, callback) => {
+        if (!origin)
+            return callback(null, true);
+        if (origin === frontendUrl || origin.endsWith('.vercel.app') || origin === 'http://localhost:5173') {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 // ── Rate limiting ─────────────────────────────────────────────────────────────
