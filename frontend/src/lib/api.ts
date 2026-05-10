@@ -59,8 +59,9 @@ export async function uploadIntake(
 
 // ── Interview ─────────────────────────────────────────────────────────────────
 
-export async function startInterview(interviewId: string): Promise<StartResponse> {
-  const { data } = await api.get<StartResponse>(`/interview/${interviewId}/start`)
+export async function startInterview(interviewId: string, voiceId?: string): Promise<StartResponse> {
+  const params = voiceId ? { voiceId } : {}
+  const { data } = await api.get<StartResponse>(`/interview/${interviewId}/start`, { params })
   return data
 }
 
@@ -68,7 +69,8 @@ export async function submitAnswer(
   interviewId: string,
   questionId: string,
   audioBlob: Blob | null,
-  transcriptOverride?: string
+  transcriptOverride?: string,
+  voiceId?: string
 ): Promise<AnswerResponse> {
   const formData = new FormData()
   formData.append('questionId', questionId)
@@ -77,6 +79,10 @@ export async function submitAnswer(
     formData.append('transcriptOverride', transcriptOverride)
   } else if (audioBlob) {
     formData.append('audio', audioBlob, 'answer.wav')
+  }
+
+  if (voiceId) {
+    formData.append('voiceId', voiceId)
   }
 
   const { data } = await api.post<AnswerResponse>(
@@ -94,8 +100,8 @@ export async function getInterview(interviewId: string) {
 
 // ── Evaluation ────────────────────────────────────────────────────────────────
 
-export async function completeInterview(interviewId: string): Promise<CompleteResponse> {
-  const { data } = await api.post<CompleteResponse>(`/evaluation/${interviewId}/complete`)
+export async function completeInterview(interviewId: string, voiceId?: string): Promise<CompleteResponse> {
+  const { data } = await api.post<CompleteResponse>(`/evaluation/${interviewId}/complete`, { voiceId })
   return data
 }
 

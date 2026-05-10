@@ -109,6 +109,7 @@ export interface AppState {
   candidateName: string
   resumeHighlights: string
   jobDescription: string
+  voiceId: string
 
   // Current question
   currentQuestion: string
@@ -143,7 +144,9 @@ export interface AppState {
   setPlayingAudio: (playing: boolean) => void
   setError: (error: string | null) => void
   setJobDescription: (jd: string) => void
+  setVoiceId: (voiceId: string) => void
   incrementQuestion: () => void
+  setTotalQuestions: (n: number) => void
   reset: () => void
 }
 

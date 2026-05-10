@@ -14,6 +14,8 @@ export default function ReadyScreen() {
     candidateName,
     resumeHighlights,
     jobDescription,
+    totalQuestions,
+    voiceId,
     setPhase,
     setCurrentQuestion,
     setError,
@@ -26,7 +28,7 @@ export default function ReadyScreen() {
     setPhase('starting')
 
     try {
-      const result = await startInterview(interviewId)
+      const result = await startInterview(interviewId, voiceId)
       setCurrentQuestion(result.firstQuestion, result.questionId)
 
       // Play greeting audio
@@ -102,7 +104,7 @@ export default function ReadyScreen() {
           What to expect
         </p>
         {[
-          '6 adaptive questions based on your resume and job description',
+          `${totalQuestions} adaptive questions based on your resume and job description`,
           'Each answer is scored and you receive instant feedback',
           'Answer by speaking — click the microphone to record',
           'The AI interviewer will guide you through the entire session',

@@ -23,6 +23,7 @@ export default function QuestionPanel() {
     isRecording,
     isProcessing,
     isPlayingAudio,
+    voiceId,
     setRecording,
     setProcessing,
     setCurrentQuestion,
@@ -89,7 +90,8 @@ export default function QuestionPanel() {
         interviewId,
         currentQuestionId,
         audioBlob,
-        text
+        text,
+        voiceId
       )
 
       // Store conversation turn
@@ -117,7 +119,7 @@ export default function QuestionPanel() {
         setProcessing(false)
 
         // Fetch final results
-        const complete = await completeInterview(interviewId)
+        const complete = await completeInterview(interviewId, voiceId)
         setResults(
           complete.overallScore,
           complete.grade,

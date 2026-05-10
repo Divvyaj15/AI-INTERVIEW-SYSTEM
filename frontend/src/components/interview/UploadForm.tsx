@@ -1,7 +1,7 @@
 
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Upload, FileText, Briefcase, ArrowRight, X } from 'lucide-react'
+import { Upload, FileText, Briefcase, ArrowRight, X, Mic } from 'lucide-react'
 import { uploadIntake } from '../../lib/api.ts'
 import { useInterviewStore } from '../../store/interviewStore.ts'
 import LoadingSpinner from '../ui/LoadingSpinner.tsx'
@@ -18,8 +18,17 @@ export default function UploadForm() {
     setInterviewId,
     setCandidateInfo,
     setJobDescription: storeSetJD,
+    setTotalQuestions,
+    setVoiceId,
+    voiceId,
     setError,
   } = useInterviewStore()
+
+  const VOICE_OPTIONS = [
+    { id: 'edge-jenny', name: 'Jenny', gender: 'Female', accent: 'International', emoji: '👩‍💼' },
+    { id: 'edge-neerja', name: 'Neerja', gender: 'Female', accent: 'Indian', emoji: '👩‍💻' },
+    { id: 'edge-prabhat', name: 'Prabhat', gender: 'Male', accent: 'Indian', emoji: '👨‍💼' },
+  ]
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -51,6 +60,7 @@ export default function UploadForm() {
       setInterviewId(result.interviewId)
       setCandidateInfo(result.candidateName, result.resumeHighlights)
       storeSetJD(jobDescription)
+      setTotalQuestions(maxQuestions)
       setPhase('ready')
     } catch (err: any) {
       setError(err?.response?.data?.message ?? err.message ?? 'Upload failed')
@@ -166,6 +176,48 @@ export default function UploadForm() {
           <span>Short (1-4)</span>
           <span>Balanced (5-8)</span>
           <span>In-depth (9+)</span>
+        </div>
+      </div>
+
+      {/* Voice Selection */}
+      <div className="space-y-3">
+        <label className="flex items-center gap-2 text-slate-300 font-medium">
+          <Mic size={18} className="text-primary-400" />
+          Interviewer Voice
+        </label>
+        <div className="grid grid-cols-3 gap-3">
+          {VOICE_OPTIONS.map((voice) => (
+            <motion.button
+              key={voice.id}
+              type="button"
+              onClick={() => setVoiceId(voice.id)}
+              className={`relative p-4 rounded-xl border-2 transition-all text-center space-y-1 ${
+                voiceId === voice.id
+                  ? 'border-primary-500 bg-primary-500/10 shadow-[0_0_20px_rgba(99,102,241,0.15)]'
+                  : 'border-slate-700/50 bg-dark-900/50 hover:border-slate-600'
+              }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {voiceId === voice.id && (
+                <motion.div
+                  layoutId="voiceIndicator"
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center"
+                  initial={false}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                >
+                  <span className="text-white text-[10px]">✓</span>
+                </motion.div>
+              )}
+              <div className="text-2xl">{voice.emoji}</div>
+              <p className={`text-sm font-semibold ${voiceId === voice.id ? 'text-primary-300' : 'text-slate-200'}`}>
+                {voice.name}
+              </p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider">
+                {voice.gender} · {voice.accent}
+              </p>
+            </motion.button>
+          ))}
         </div>
       </div>
 

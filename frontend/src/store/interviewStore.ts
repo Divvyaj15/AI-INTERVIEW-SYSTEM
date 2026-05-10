@@ -7,10 +7,11 @@ const initialState = {
   candidateName: '',
   resumeHighlights: '',
   jobDescription: '',
+  voiceId: 'edge-neerja',
   currentQuestion: '',
   currentQuestionId: null,
   questionNumber: 1,
-  totalQuestions: 6,
+  totalQuestions: 5,
   conversation: [],
   overallScore: null,
   grade: '',
@@ -51,8 +52,12 @@ export const useInterviewStore = create<AppState>((set) => ({
 
   setJobDescription: (jobDescription) => set({ jobDescription }),
 
+  setVoiceId: (voiceId) => set({ voiceId }),
+
   incrementQuestion: () =>
     set((state) => ({ questionNumber: state.questionNumber + 1 })),
+
+  setTotalQuestions: (totalQuestions) => set({ totalQuestions }),
 
   reset: () => set(initialState),
 }))
