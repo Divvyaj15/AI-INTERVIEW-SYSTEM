@@ -61,10 +61,12 @@ evaluationRouter.post('/:interviewId/complete', authMiddleware, async (req, res,
 
     const finalReport = await llmCall(rUser, rSys, { temperature: 0.4, maxTokens: 600 })
 
+    const voiceId = req.body?.voiceId as string | undefined
+
     // Generate closing audio
     const { system: tSys, user: tUser } = buildFinalThanksPrompt(candidateName)
     const thanksText = await llmCall(tUser, tSys, { temperature: 0.7, maxTokens: 100 })
-    const closingAudio = await synthesizeSpeech(thanksText)
+    const closingAudio = await synthesizeSpeech(thanksText, voiceId)
 
     // Persist results
     await supabase

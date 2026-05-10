@@ -6,6 +6,7 @@ import { authMiddleware } from '../middleware/auth.js'
 import { createError } from '../middleware/errorHandler.js'
 import { llmCallJSON } from '../services/llm.service.js'
 import { synthesizeSpeech } from '../services/tts.service.js'
+import { transcribeAudio } from '../services/stt.service.js'
 import { buildGreetingPrompt } from '../prompts/greeting.js'
 import { buildNextQuestionPrompt } from '../prompts/nextQuestion.js'
 import { buildEvaluateAnswerPrompt } from '../prompts/evaluateAnswer.js'
@@ -24,7 +25,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 // ── GET /interview/:id/start ──────────────────────────────────────────────────
 interviewRouter.get('/:id/start', authMiddleware, async (req, res, next) => {
   try {
-    const interviewId = req.params.id
+    const interviewId = req.params.id as string
 
     const { data: interview, error: intError } = await supabase
       .from('interviews')
@@ -43,9 +44,11 @@ interviewRouter.get('/:id/start', authMiddleware, async (req, res, next) => {
       companyContext: interview.resume_highlights ?? '',
     })
 
+    const voiceId = (req.query.voiceId as string) || undefined
+
     const greetingResult = await llmCallJSON<{ greeting: string }>(user, system)
     const greetingText = greetingResult.greeting
-    const audioBase64 = await synthesizeSpeech(greetingText)
+    const audioBase64 = await synthesizeSpeech(greetingText, voiceId)
 
     const context = await buildQuestionContext(interviewId, 'introduction')
     const ragContext = formatContextForLLM(context)
@@ -86,8 +89,10 @@ interviewRouter.get('/:id/start', authMiddleware, async (req, res, next) => {
 // ── POST /interview/:id/answer ────────────────────────────────────────────────
 interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), async (req, res, next) => {
   try {
-    const interviewId = req.params.id
-    const { questionId, transcriptOverride } = req.body
+    const interviewId = req.params.id as string
+    const questionId = req.body.questionId as string
+    const transcriptOverride = req.body.transcriptOverride as string | undefined
+    const voiceId = req.body.voiceId as string | undefined
 
     const { data: interview, error: intError } = await supabase
       .from('interviews')
@@ -105,13 +110,20 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
 
     if (qError || !question) throw createError('Question not found', 404)
 
-    const transcript = transcriptOverride || ''
+    let transcript = transcriptOverride || ''
+
+    // If no text override, transcribe the uploaded audio via Deepgram
+    if (!transcript.trim() && req.file) {
+      const sttResult = await transcribeAudio(req.file.buffer, req.file.mimetype)
+      transcript = sttResult.transcript
+    }
+
     if (!transcript.trim()) throw createError('No transcript could be produced', 422)
 
     const jobTitle = interview.job_description.split('\n')[0].slice(0, 80)
     const maxQuestions = interview.max_questions ?? 5
 
-    const context = await buildQuestionContext(interviewId, question.topic ?? question.question_text)
+    const context = await buildQuestionContext(interviewId, (question.topic ?? question.question_text) as string)
     const ragContext = formatContextForLLM(context)
 
     const { system: eSys, user: eUser } = buildEvaluateAnswerPrompt({
@@ -137,9 +149,9 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
 
     embedAndStoreInterviewTurn({
       interviewId,
-      questionText: question.question_text,
+      questionText: question.question_text as string,
       answerText: transcript,
-      score: evaluation.score,
+      score: evaluation.score as number,
     }).catch(e => console.warn('[Answer] Turn embedding error:', e))
 
     const { count } = await supabase
@@ -155,7 +167,7 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
     let audioBase64: string | null = null
 
     if (!isComplete) {
-      const nextContext = await buildQuestionContext(interviewId, evaluation.nextQuestionTopic)
+      const nextContext = await buildQuestionContext(interviewId, evaluation.nextQuestionTopic as string)
       const nextRagContext = formatContextForLLM(nextContext)
 
       const { system: qSys, user: qUser } = buildNextQuestionPrompt({
@@ -178,9 +190,9 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
         topic: nextQuestionData.topic,
       })
 
-      audioBase64 = await synthesizeSpeech(`${evaluation.feedback} Now, ${nextQuestion}`)
+      audioBase64 = await synthesizeSpeech(`${evaluation.feedback} Now, ${nextQuestion}`, voiceId)
     } else {
-      audioBase64 = await synthesizeSpeech(`Excellent job. You have completed the session.`)
+      audioBase64 = await synthesizeSpeech(`Excellent job. You have completed the session.`, voiceId)
     }
 
     res.json({

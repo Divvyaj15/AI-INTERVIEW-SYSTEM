@@ -1,26 +1,30 @@
-import { elevenlabs, VOICE_ID } from '../lib/elevenlabs.js'
+import { EdgeTTS } from '@andresaya/edge-tts'
+
+// ── Voice map: frontend voiceId → Edge TTS voice name ─────────────────────────
+const EDGE_VOICE_MAP: Record<string, string> = {
+  'edge-neerja':  'en-IN-NeerjaNeural',    // Female, Indian
+  'edge-prabhat': 'en-IN-PrabhatNeural',    // Male, Indian
+  'edge-jenny':   'en-US-JennyNeural',      // Female, International
+}
+
+const DEFAULT_VOICE = 'en-IN-NeerjaNeural'
 
 export async function synthesizeSpeech(text: string, voiceId?: string): Promise<string> {
-  const targetVoice = voiceId ?? VOICE_ID
+  const tts = new EdgeTTS()
 
-  const audio = await elevenlabs.generate({
-    voice: targetVoice,
-    text,
-    model_id: 'eleven_turbo_v2_5',
-    voice_settings: {
-      stability: 0.5,
-      similarity_boost: 0.75,
-      style: 0.3,
-      use_speaker_boost: true,
-    },
-  })
-
-  // Collect streaming chunks into a buffer
-  const chunks: Buffer[] = []
-  for await (const chunk of audio) {
-    chunks.push(Buffer.from(chunk))
+  // Resolve voice: check the map first, then use as-is if it looks like an Edge voice, else default
+  let voiceName = DEFAULT_VOICE
+  if (voiceId && EDGE_VOICE_MAP[voiceId]) {
+    voiceName = EDGE_VOICE_MAP[voiceId]
+  } else if (voiceId && voiceId.includes('Neural')) {
+    voiceName = voiceId
   }
 
-  const audioBuffer = Buffer.concat(chunks)
-  return audioBuffer.toString('base64')
+  await tts.synthesize(text, voiceName, {
+    rate: '0%',
+    volume: '0%',
+    pitch: '+0Hz',
+  })
+
+  return tts.toBase64()
 }
