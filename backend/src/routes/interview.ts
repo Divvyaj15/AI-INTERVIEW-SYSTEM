@@ -50,35 +50,20 @@ interviewRouter.get('/:id/start', authMiddleware, async (req, res, next) => {
     const greetingText = greetingResult.greeting
     const audioBase64 = await synthesizeSpeech(greetingText, voiceId)
 
-    const context = await buildQuestionContext(interviewId, 'introduction')
-    const ragContext = formatContextForLLM(context)
-
-    const { system: qSys, user: qUser } = buildNextQuestionPrompt({
-      ragContext,
-      questionNumber: 1,
-      totalQuestions: maxQuestions,
-      previousTopic: null,
-      jobTitle,
-    })
-
-    const firstQuestionData = await llmCallJSON<{
-      question: string
-      topic: string
-    }>(qUser, qSys, { temperature: 0.7 })
-
+    // Use the greeting text as the first question so the verbal audio matches the on-screen text
     const firstQuestionId = uuid()
     await supabase.from('questions').insert({
       id: firstQuestionId,
       interview_id: interviewId,
-      question_text: firstQuestionData.question,
+      question_text: greetingText,
       order_index: 0,
-      topic: firstQuestionData.topic,
+      topic: 'introduction',
     })
 
     res.json({
       greeting: greetingText,
       audioBase64,
-      firstQuestion: firstQuestionData.question,
+      firstQuestion: greetingText,
       questionId: firstQuestionId,
     } as StartResponse)
   } catch (err) {
@@ -112,18 +97,25 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
 
     let transcript = transcriptOverride || ''
 
-    // If no text override, transcribe the uploaded audio via Deepgram
-    if (!transcript.trim() && req.file) {
-      const sttResult = await transcribeAudio(req.file.buffer, req.file.mimetype)
-      transcript = sttResult.transcript
-    }
+    // 1. MASSIVE SPEEDUP: Parallelize STT, Context Retrieval, and DB Counting
+    const [sttResult, context, countResult] = await Promise.all([
+      (!transcript.trim() && req.file)
+        ? transcribeAudio(req.file.buffer, req.file.mimetype)
+        : Promise.resolve({ transcript }),
+      buildQuestionContext(interviewId, (question.topic ?? question.question_text) as string),
+      supabase.from('evaluations').select('id', { count: 'exact', head: true }).eq('interview_id', interviewId)
+    ])
 
+    transcript = sttResult.transcript
     if (!transcript.trim()) throw createError('No transcript could be produced', 422)
 
     const jobTitle = interview.job_description.split('\n')[0].slice(0, 80)
     const maxQuestions = interview.max_questions ?? 5
 
-    const context = await buildQuestionContext(interviewId, (question.topic ?? question.question_text) as string)
+    // countResult gives the count BEFORE we insert the current evaluation
+    const answeredCount = (countResult.count ?? 0) + 1
+    const isComplete = answeredCount >= maxQuestions
+
     const ragContext = formatContextForLLM(context)
 
     const { system: eSys, user: eUser } = buildEvaluateAnswerPrompt({
@@ -136,7 +128,8 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
 
     const evaluation = await llmCallJSON<LLMEvaluationResult>(eUser, eSys, { temperature: 0.3 })
 
-    await supabase.from('evaluations').insert({
+    // FIRE AND FORGET: Don't make the user wait for DB inserts
+    supabase.from('evaluations').insert({
       id: uuid(),
       question_id: questionId,
       interview_id: interviewId,
@@ -145,6 +138,8 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
       feedback: evaluation.feedback,
       criteria_scores: evaluation.criteriaScores,
       competency_assessment: evaluation.competencyAssessment,
+    }).then(({ error }) => {
+      if (error) console.error('[Answer] Eval insert error:', error.message)
     })
 
     embedAndStoreInterviewTurn({
@@ -153,14 +148,6 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
       answerText: transcript,
       score: evaluation.score as number,
     }).catch(e => console.warn('[Answer] Turn embedding error:', e))
-
-    const { count } = await supabase
-      .from('evaluations')
-      .select('id', { count: 'exact', head: true })
-      .eq('interview_id', interviewId)
-
-    const answeredCount = count ?? 0
-    const isComplete = answeredCount >= maxQuestions
 
     let nextQuestion: string | null = null
     let nextQuestionId: string | null = null
@@ -182,12 +169,15 @@ interviewRouter.post('/:id/answer', authMiddleware, upload.single('audio'), asyn
       nextQuestionId = uuid()
       nextQuestion = nextQuestionData.question
 
-      await supabase.from('questions').insert({
+      // FIRE AND FORGET Next Question Insert
+      supabase.from('questions').insert({
         id: nextQuestionId,
         interview_id: interviewId,
         question_text: nextQuestion,
-        order_index: answeredCount + 1,
+        order_index: answeredCount,
         topic: nextQuestionData.topic,
+      }).then(({ error }) => {
+        if (error) console.error('[Answer] Question insert error:', error.message)
       })
 
       audioBase64 = await synthesizeSpeech(`${evaluation.feedback} Now, ${nextQuestion}`, voiceId)

@@ -59,6 +59,7 @@ intakeRouter.post(
         candidate_id: userId,
         job_description: jobDescription,
         resume_highlights: extraction.highlights,
+        max_questions: maxQuestions,
         status: 'pending',
       })
 
