@@ -43,13 +43,13 @@ export default function Home() {
 
   // ── Render Landing Page (Guest) ──────────────────────────────────────────────
   return (
-    <div 
+    <div
       className="min-h-screen bg-dark-950 text-white overflow-hidden relative cursor-crosshair"
       onClick={handlePulse}
     >
       <Scene phase={isAuthenticated ? 'dashboard' : 'home'} />
       <div className="fixed inset-0 nebula pointer-events-none opacity-60" />
-      
+
       {/* Sparkles */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(30)].map((_, i) => (
@@ -69,16 +69,16 @@ export default function Home() {
       </div>
 
       <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
-        
+
         {/* Core Orb */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 perspective-1000">
-          <motion.div 
-            animate={{ 
+          <motion.div
+            animate={{
               x: mousePos.x * 0.4,
               y: mousePos.y * 0.4
             }}
             className="w-[300px] h-[300px] md:w-[500px] md:h-[500px] rounded-full"
-            style={{ 
+            style={{
               background: 'radial-gradient(circle at 30% 30%, #6366f1, #020617)',
               boxShadow: '0 0 100px rgba(99,102,241,0.2), inset -20px -20px 60px rgba(0,0,0,0.8)',
             }}
@@ -86,7 +86,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <div 
+        <div
           className="text-center space-y-8 max-w-4xl"
           style={{ transform: `translate(${-mousePos.x}px, ${-mousePos.y}px)` }}
         >
@@ -100,19 +100,19 @@ export default function Home() {
           </motion.div>
 
           <div className="space-y-4">
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               className="text-6xl md:text-[100px] font-black tracking-tighter leading-none"
             >
               The <span className="text-gradient">Interviewer</span>
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-lg md:text-xl text-slate-400 font-medium max-w-xl mx-auto"
             >
-              Master your career conversations with our 3D AI feedback engine.
+              Master your career conversations with our AI feedback engine.
             </motion.p>
           </div>
 
@@ -121,7 +121,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             className="pt-6"
           >
-            <button 
+            <button
               onClick={handleGetStarted}
               className="group relative px-10 py-4 bg-primary-600 rounded-full font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(99,102,241,0.3)]"
             >
