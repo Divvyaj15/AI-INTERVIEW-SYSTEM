@@ -112,7 +112,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               className="text-lg md:text-xl text-slate-400 font-medium max-w-xl mx-auto"
             >
-              Master your career conversations with our 3D antigravity AI feedback engine.
+              Master your career conversations with our 3D AI feedback engine.
             </motion.p>
           </div>
 
