@@ -5,6 +5,8 @@ An intelligent interview platform that conducts automated job interviews using A
 https://ai-interview-system-avtl.vercel.app/
 
 
+
+
 ✨ Features
 
 Resume Analysis: Upload your PDF resume and get key highlights extracted automatically
@@ -18,6 +20,8 @@ Real-time Chat: Chat interface showing the conversation flow
 Intelligent Scoring: Get detailed feedback and scores for each answer
 
 Complete Evaluation: Receive an overall interview score and comprehensive report
+
+
 
 
 🚀 How It Works
@@ -34,6 +38,7 @@ Select AI Interviewer Voice (multiple options available)
 
 Click "Submit" to process your information
 
+
 2. Interview Process
 
 Click "Start Interview" to begin
@@ -48,6 +53,7 @@ The system transcribes and analyzes your response
 
 Receive the next question based on your previous answers
 
+
 3. Get Results
 
 Complete selected number interview questions
@@ -57,6 +63,8 @@ Receive detailed feedback for each answer
 Get an overall interview score out of 10
 
 Review the complete chat history and evaluation report
+
+
 
 
 🎯 What Makes It Special
@@ -70,6 +78,8 @@ Detailed Feedback: Understand what you did well and areas for improvement
 Professional Interface: Clean, easy-to-use chat-based design
 
 Complete Documentation: Full interview transcript and scoring breakdown
+
+
 
 
 📋 Requirements
@@ -95,6 +105,8 @@ Speechmatics API key for speech-to-text
 Speechmatics Platform: https://www.speechmatics.com/
 
 
+
+
 📊 Scoring System
 
 Each answer receives:
@@ -116,6 +128,8 @@ Complete conversation history
 Personalized recommendations
 
 
+
+
 🔄 Multiple Interviews
 
 Take multiple practice interviews
@@ -125,6 +139,8 @@ Try different job descriptions
 Track your improvement over time
 
 Perfect your interview skills
+
+
 
 
 💡 Tips for Best Results
