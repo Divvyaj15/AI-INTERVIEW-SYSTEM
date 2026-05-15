@@ -4,6 +4,7 @@ An intelligent interview platform that conducts automated job interviews using A
 https://ai-interview-system-avtl.vercel.app/
 
 ✨ Features
+
 Resume Analysis: Upload your PDF resume and get key highlights extracted automatically
 Personalized Questions: AI generates interview questions based on your resume and the job description
 Voice Interaction: Speak your answers naturally - the system will transcribe and analyze them
@@ -12,6 +13,7 @@ Intelligent Scoring: Get detailed feedback and scores for each answer
 Complete Evaluation: Receive an overall interview score and comprehensive report
 
 🚀 How It Works
+
 1. Setup
 Upload your resume (PDF format)
 Paste the job description you're applying for
